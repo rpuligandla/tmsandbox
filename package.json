@@ -1,0 +1,25 @@
+{
+  "name": "playwright-api-testing",
+  "version": "1.0.0",
+  "description": "Playwright API testing project with TypeScript",
+  "main": "index.js",
+  "scripts": {
+    "test": "npx playwright test && npx playwright show-report",
+    "test:headed": "npx playwright test --headed",
+    "test:debug": "npx playwright test --debug",
+    "test:ui": "npx playwright test --ui",
+    "test:report": "npx playwright show-report",
+    "clean": "rm -rf test-results playwright-report",
+    "setup": "npm install && npx playwright install && npm run install:browsers"
+  },
+  "author": "Ranjeeth Puligandla",
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.57.0",
+    "@types/node": "^25.0.0",
+    "typescript": "^5.9.3",
+    "rimraf": "^6.0.0"
+  }
+}
