@@ -7,14 +7,16 @@ on:
   pull_request:
     branches: [main, develop]
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   api-tests:
     runs-on: ubuntu-latest
 
     permissions:
       contents: read
-      pages: write
-      id-token: write
 
     steps:
       - name: Checkout code
@@ -33,35 +35,16 @@ jobs:
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps
 
-      # Run Tests Step
-      - name: Run TM Sandbox API Tests
-        run: npm run test:tmsandbox:line
-        continue-on-error: false
+      # Set Debug Logging for CI
+      - name: Configure Debug Logging for CI
+        run: |
+          sed -i 's/enabled: true/enabled: false/' utils/debugConfig.ts
+          echo "Debug logging disabled for CI environment"
 
+      # Run Tests Step
       - name: Run All API Tests
         run: npm test
         continue-on-error: true
-
-      # Generate Report Step
-      - name: Generate HTML Report
-        if: always()
-        run: npx playwright show-report --reporter=html
-
-      # Publish Report Step (GitHub Pages)
-      - name: Setup Pages
-        if: always()
-        uses: actions/configure-pages@v4
-
-      - name: Upload Pages Artifact
-        if: always()
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: playwright-report/
-
-      - name: Deploy to GitHub Pages
-        if: always()
-        id: deployment
-        uses: actions/deploy-pages@v4
 
       # Upload Report as Artifact Step
       - name: Upload Test Results
@@ -86,14 +69,15 @@ jobs:
       - name: Test Summary
         if: always()
         run: |
-          echo "## 🎯 TM Sandbox API Test Results" >> $GITHUB_STEP_SUMMARY
+          echo "## TM Sandbox API Test Results" >> $GITHUB_STEP_SUMMARY
+          echo "- **Test Suite:** TM Sandbox Category Details API" >> $GITHUB_STEP_SUMMARY
           echo "- **Run Number:** ${{ github.run_number }}" >> $GITHUB_STEP_SUMMARY
           echo "- **Commit:** ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
           echo "- **Branch:** ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
-          echo "- **Report URL:** ${{ steps.deployment.outputs.page_url }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Report Artifact:** playwright-report-${{ github.run_number }}" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           if [ -f "test-results/results.json" ]; then
-            echo "### 📊 Test Results Summary" >> $GITHUB_STEP_SUMMARY
+            echo "### Test Results Summary" >> $GITHUB_STEP_SUMMARY
             echo '```json' >> $GITHUB_STEP_SUMMARY
             cat test-results/results.json | jq '.stats' >> $GITHUB_STEP_SUMMARY
             echo '```' >> $GITHUB_STEP_SUMMARY

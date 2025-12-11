@@ -1,16 +1,16 @@
 {
-  "name": "playwright-api-testing",
+  "name": "tmsandbox-api-testing",
   "version": "1.0.0",
-  "description": "Playwright API testing project with TypeScript",
+  "description": "TM Sandbox API testing suite with Playwright and TypeScript",
   "main": "index.js",
   "scripts": {
-    "test": "npx playwright test && npx playwright show-report",
+    "test": "npx playwright test",
     "test:headed": "npx playwright test --headed",
     "test:debug": "npx playwright test --debug",
     "test:ui": "npx playwright test --ui",
     "test:report": "npx playwright show-report",
     "clean": "rm -rf test-results playwright-report",
-    "setup": "npm install && npx playwright install && npm run install:browsers"
+    "setup": "npm install && npx playwright install"
   },
   "author": "Ranjeeth Puligandla",
   "engines": {
